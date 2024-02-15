@@ -5,12 +5,14 @@ from random import randint
 import time
 WIDTH = 1350
 end = 0
+difficuly = 4
 t0 = time.time()
 i = 0
+bird_kills = 0
 na = []
 import pygame as pg
 HEIGHT = 600
-plane2 = Actor("plane")
+bird = Actor("bird")
 bullet = Actor("bullet")
 which_one = 0
 picker = 0
@@ -18,7 +20,7 @@ flight_attemped = 0
 is_flight_attemped = "False"
 win = False
 plane = Actor("plane")
-bullet.pos = -1000,-1000
+bullet.pos = 0,0
 ax,ay=(random.randint(1340,1350),random.randint(0,600))
 tree = Actor("hal_tree")
 plane_angle = 0
@@ -43,8 +45,10 @@ def explosion_animation():
         global plane_angle
         global altitude
         global flight_attemped
-        global is_flight_attemped
+        global is_flight_attemped, bird_kills
         speed = 0
+        bird_kills = 0
+        bullet.pos = 1029380923,18987213
         ax,ay=(random.randint(1340,1350),random.randint(0,600))
         i = 0
         plane_angle = 0
@@ -62,12 +66,14 @@ def won():
     global is_flight_attemped
     global plane_angle
     global flight_attemped
-    global speed, ax,ay,i
+    global speed, ax,ay,i, bird_kills
     if win == True:
         altitude = 0
         ax,ay=(random.randint(1340,1350),random.randint(0,600))
         i = 0
+        bird_kills = 0
         plane_angle = 0
+        bullet.pos = 1029380923,18987213
         screen.draw.text("SUCCESFULLY PLANE LANDED! PRESS Q TO RESTART", (300, 300), color="green")
         plane.pos = WIDTH / 2, HEIGHT - 50
         flight_attemped = 0
@@ -95,16 +101,16 @@ music_picker_randomizer()
         
 def draw():
     
-    global plane_angle, plane, plane_exploded, speed, game_over, altitude, a,b, plane2, bullet
+    global plane_angle, plane, plane_exploded, speed, game_over, altitude, a,b, bird, bullet
     plane_exploded.draw()
     screen.blit("background", (0, 0))
     plane.draw()
     tree.draw()
     bullet.draw()
-    plane2.draw()
+    bird.draw()
     plane.pos = random.randint(1340,1350),random.randint(0,600)
-    if keyboard.space:
-        screen.draw.text("POW!!!!: " + str(na), (WIDTH/2, HEIGHT/2), color="red")
+    bullet.pos = 1029380923,18987213
+    
     if speed < 0:
         
         screen.draw.text("STALL!STALL!STALL!STALL!STALL!STALL!STALL" + str(speed),(675,300), color="red")
@@ -133,6 +139,8 @@ def draw():
         game_over = True
     if speed <= 0 and altitude > 0:
         altitude -= plane_angle
+    screen.draw.text("Bird_kills: " + str(bird_kills), (0, 85), color="green")
+    screen.draw.text("To kill: " + str(difficuly*150), (0, 105), color="orange")
     #if speed < 0:
     #    speed == 0
     if keyboard.E:
@@ -157,7 +165,7 @@ def draw():
     won()
 def tree_change():
     
-    global picker
+    global picker, tree
     picker = random.randint(1,4)
     if picker == 1:
         tree = Actor("tree")
@@ -167,24 +175,30 @@ def tree_change():
         tree = Actor("hal_tree")
     if picker == 4:
         tree = Actor("troll")
-    
+tree_change()
 def update():
-    global altitude, t0,i, plane2, ax,ay,end
-    global speed
+    global altitude, t0,i, bird, ax,ay,end
+    global speed, tree, bird_kills
     global plane
     global win
     global is_flight_attemped
     global flight_attemped
     global plane_angle
-    global game_over
+    global game_over, difficuly
+    
     is_developer()
+    if keyboard.i:
+        difficuly = 2
+    if keyboard.o:
+        difficuly = 4
+    if keyboard.p:
+        difficuly = 6
     if tree.x < 20:
         tree.pos = WIDTH - 100, tree.y
-    
-    if keyboard.down and speed != 0 and speed > 60:
+    if keyboard.down:
         if altitude != 0 or altitude != 1:
             altitude += 0.1
-        speed -= 3
+        speed -= 1.5
         if plane_angle >= -46 and plane_angle < 45:
             plane_angle += 0.5
     if plane_angle > 0:
@@ -200,12 +214,7 @@ def update():
     if speed != 0:
         if keyboard.left and speed != 0:
             speed -= 6
-    if keyboard.space:
-        bullet.pos = plane2.pos
-        
-    else:
-        for z in range(10):
-            bullet.pos = -1000,-1000
+
     
     if keyboard.Q and game_over == True or keyboard.Q and win == True:
         game_over = False
@@ -225,27 +234,30 @@ def update():
     
     if speed > 1500:
         plane.pos = plane.x + random.randint(1,5), plane.y - random.randint(1,5)
-    if plane_angle > 0 and plane.y >= 170 and plane.y <= 550:
+    if plane_angle > 0 and plane.y >= 0 and plane.y <= HEIGHT:
         plane.pos = plane.x, plane.y - plane_angle*20
     
-    if flight_attemped >= 500000:
+    if flight_attemped >= 500000 and bird_kills > 150*difficuly:
         is_flight_attemped = "Ready"
-    if plane_angle <= 0 and plane_angle >= -6 and altitude < 0 and altitude > -10 and flight_attemped >= 500000 and speed < 2000:
+    if plane_angle <= 0 and plane_angle >= -6 and altitude < 0 and altitude > -10 and flight_attemped >= 500000 and speed < 2000 and bird_kills >= 150*difficuly:
         win = True
 
+    if keyboard.space:
+        #ax,ay=(random.randint(1340,1350),random.randint(0,600))
+        time_elapsed = time.time()
+        if time_elapsed > 1:
+            bullet.pos = bird.x, plane.y
+            time_elapsed = 0
 
-
-
-    #enemy_birds_code:
         
     
     bx,by=(int(plane.x), int(plane.y))
     
-
+    
     steps_number = max( abs(bx-ax), abs(by-ay) )
 
     #print(int(ax + stepx), int(ay + stepy))
-    
+    #print(bx,by)
     dx, dy = (bx - ax, by - ay)
     stepx, stepy = (dx / 25., dy / 25.)
     
@@ -255,21 +267,25 @@ def update():
     if dt >= 0.1:
         t0 = t1
         #print("plane.pos:", plane.pos)
-        #print("plane2.pos:",plane2.pos)
-        #print(plane2.pos == plane.pos)
-        plane2.pos = int(ax + stepx*i), int(ay + stepy*i)
+        #print("bird.pos:",bird.pos)
+        #print(bird.pos == plane.pos)
+        bird.pos = int(ax + stepx*i), int(ay + stepy*i)
         i+= 1
         dt = t1 - t0
         
-    if plane2.pos == plane.pos:
+    if bird.colliderect(plane):
         game_over = True
+        ax,ay=(random.randint(1340,1350),random.randint(0,600))
 
-    
-    if bullet.colliderect(plane2):
-       i = 0
+
+
+    if bullet.colliderect(bird):
+       i=0
        ax,ay=(random.randint(1340,1350),random.randint(0,600))
-    
+       bird_kills += 1
+       
 
+    
 pgzrun.go()
 
 '''
