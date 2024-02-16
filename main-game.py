@@ -8,6 +8,7 @@ end = 0
 difficuly = 4
 t0 = time.time()
 i = 0
+t2 = time.time()
 bird_kills = 0
 na = []
 import pygame as pg
@@ -20,8 +21,8 @@ flight_attemped = 0
 is_flight_attemped = "False"
 win = False
 plane = Actor("plane")
-bullet.pos = 0,0
-ax,ay=(random.randint(1340,1350),random.randint(0,600))
+bullet.pos = 1238909123,8127391827
+ax,ay=(random.randint(1200,1350),random.randint(0,600))
 tree = Actor("hal_tree")
 plane_angle = 0
 plane.pos = WIDTH / 2, HEIGHT - 50
@@ -33,9 +34,10 @@ altitude = 0
 game_over = False
 
 def is_developer():
-    if keyboard.M:
-        global flight_attemped
+    if keyboard.Z:
+        global flight_attemped, bird_kills
         flight_attemped = 500000
+        bird_kills = 99999
 
         
 
@@ -49,7 +51,7 @@ def explosion_animation():
         speed = 0
         bird_kills = 0
         bullet.pos = 1029380923,18987213
-        ax,ay=(random.randint(1340,1350),random.randint(0,600))
+        ax,ay=(random.randint(1200,1350),random.randint(0,600))
         i = 0
         plane_angle = 0
         altitude = 0 
@@ -69,7 +71,7 @@ def won():
     global speed, ax,ay,i, bird_kills
     if win == True:
         altitude = 0
-        ax,ay=(random.randint(1340,1350),random.randint(0,600))
+        ax,ay=(random.randint(1200,1350),random.randint(0,600))
         i = 0
         bird_kills = 0
         plane_angle = 0
@@ -140,27 +142,34 @@ def draw():
     if speed <= 0 and altitude > 0:
         altitude -= plane_angle
     screen.draw.text("Bird_kills: " + str(bird_kills), (0, 85), color="green")
-    screen.draw.text("To kill: " + str(difficuly*150), (0, 105), color="orange")
+    screen.draw.text("To kill: " + str(difficuly*25), (0, 105), color="orange")
     #if speed < 0:
     #    speed == 0
     if keyboard.E:
         quit()
-    if plane_angle > 20:
-        plane = Actor("plane_40_degrees")
-        plane.pos = WIDTH / 2, HEIGHT - 50
-    if plane_angle > 0 and plane_angle < 21:
-        plane = Actor("plane_20_degrees")
-        plane.pos = WIDTH / 2, HEIGHT - 50
-    if plane_angle == 0:
-        plane = Actor("plane")
-        plane.pos = WIDTH / 2, HEIGHT - 50
-    if plane_angle < 0 and plane_angle > - 21:
+    if speed >= 0:
+        if plane_angle > 20:
+            plane = Actor("plane_40_degrees")
+            plane.pos = WIDTH / 2, HEIGHT - 50
+        if plane_angle > 0 and plane_angle < 21:
+            plane = Actor("plane_20_degrees")
+            plane.pos = WIDTH / 2, HEIGHT - 50
+        if plane_angle == 0:
+            plane = Actor("plane")
+            plane.pos = WIDTH / 2, HEIGHT - 50
+        if plane_angle < 0 and plane_angle > - 21:
+            plane = Actor("plane_20_degr_tilted")
+            plane.pos = WIDTH / 2, HEIGHT - 50
+
+        if plane_angle < -20 and plane_angle > - 40:
+            plane = Actor("plane_40_degr_tilted")
+            plane.pos = WIDTH / 2, HEIGHT - 50
+    else: 
         plane = Actor("plane_20_degr_tilted")
         plane.pos = WIDTH / 2, HEIGHT - 50
+        
 
-    if plane_angle < -20 and plane_angle > - 40:
-        plane = Actor("plane_40_degr_tilted")
-        plane.pos = WIDTH / 2, HEIGHT - 50
+
     explosion_animation()
     won()
 def tree_change():
@@ -177,7 +186,7 @@ def tree_change():
         tree = Actor("troll")
 tree_change()
 def update():
-    global altitude, t0,i, bird, ax,ay,end
+    global altitude, t0,i, bird, ax,ay,end, t2
     global speed, tree, bird_kills
     global plane
     global win
@@ -237,17 +246,18 @@ def update():
     if plane_angle > 0 and plane.y >= 0 and plane.y <= HEIGHT:
         plane.pos = plane.x, plane.y - plane_angle*20
     
-    if flight_attemped >= 500000 and bird_kills > 150*difficuly:
+    if flight_attemped >= 500000 and bird_kills > 25*difficuly:
         is_flight_attemped = "Ready"
-    if plane_angle <= 0 and plane_angle >= -6 and altitude < 0 and altitude > -10 and flight_attemped >= 500000 and speed < 2000 and bird_kills >= 150*difficuly:
+    if plane_angle <= 0 and plane_angle >= -6 and altitude < 0 and altitude > -10 and flight_attemped >= 500000 and speed < 2000 and bird_kills >= 25*difficuly:
         win = True
+    t3 = time.time()
+    at = t3 - t2
+    if keyboard.space and at > 1:
+        #ax,ay=(random.randint(1200,1350),random.randint(0,600))
+        bullet.pos = bird.x, plane.y
+        t2 = t3
+        at = t3 - t2
 
-    if keyboard.space:
-        #ax,ay=(random.randint(1340,1350),random.randint(0,600))
-        time_elapsed = time.time()
-        if time_elapsed > 1:
-            bullet.pos = bird.x, plane.y
-            time_elapsed = 0
 
         
     
@@ -275,13 +285,14 @@ def update():
         
     if bird.colliderect(plane):
         game_over = True
-        ax,ay=(random.randint(1340,1350),random.randint(0,600))
+        ax,ay=(random.randint(1200,1350),random.randint(0,600))
 
 
 
     if bullet.colliderect(bird):
        i=0
-       ax,ay=(random.randint(1340,1350),random.randint(0,600))
+       ax,ay=(random.randint(1200,1350),random.randint(0,600))
+       bird.pos = int(ax + stepx*i), int(ay + stepy*i)
        bird_kills += 1
        
 
